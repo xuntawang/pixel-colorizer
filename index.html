@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <link rel="stylesheet" href="style.css">
+  <title>Pixel Colorizer</title>
+</head>
+
+<body>
+  <section class="working">
+    <div class="wrap">
+      <h2>Pixel It now</h2>
+
+      <!-- max width -->
+      <div class="container maxwidth" id="tryit">
+        <div class="selectors">
+          <!--upload image -->
+          <label id="uploadimage" for="pixlInput">Upload Image<input type="file" class="inputbtn" id="pixlInput"></label>
+          <!-- pixelate -->
+          <label for="pixelate" class="inputbtn">Pixelate<input type="checkbox" id="pixelate"></label>
+          <!-- block size -->
+          <label for="blocksize" class="inputbtn">Block size<span id="blockvalue">4</span><input value="4" type="range" min="2" max="25" id="blocksize"></label>
+          <!-- palette -->
+          <label for="palette" class="inputbtn">palette<input type="checkbox" id="palette"></label>
+          <!-- greyscale -->
+          <label for="greyscale" class="inputbtn">Greyscale<input type="checkbox" id="greyscale"></label>
+          <!-- max height -->
+          <label for="maxheight" class="inputbtn">Max Height<input type="input" id="maxheight" placeholder="in px"></label>
+          <!-- max width -->
+          <label for="maxwidth" class="inputbtn">Max Width<input type="input" id="maxwidth" placeholder="in px"></label>
+          <!-- color palette -->
+          <label for="colorpalette" class="inputbtn">
+            Color Palette
+            <select name="palette" id="palette-select">
+              <option value="all">All colors unlocked</option>
+              <option value="free">Free colors only</option>
+            </select>
+          </label>
+          <!-- download image -->
+          <button id="downloadimage" class="btn small call">Download Image</button>
+        </div>
+
+        <canvas id="pixelitcanvas"></canvas>
+
+      </div>
+  </section>
+  <img style="visibility: hidden;" id="sourceImage" alt="">
+
+  <script src="pixelit.js"></script>
+  <script src="script.js"></script>
+
+
+</body>
+
+</html>
