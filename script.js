@@ -170,6 +170,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Drag-and-drop overlay logic
+  const dragOverlay = document.getElementById('drag-overlay');
+  let dragCounter = 0;
+  function showOverlay() {
+    if (dragOverlay) dragOverlay.style.display = 'block';
+  }
+  function hideOverlay() {
+    if (dragOverlay) dragOverlay.style.display = 'none';
+  }
+  document.addEventListener('dragenter', function (e) {
+    dragCounter++;
+    if (e.dataTransfer && Array.from(e.dataTransfer.types).includes('Files')) {
+      showOverlay();
+    }
+  });
+  document.addEventListener('dragleave', function (e) {
+    dragCounter--;
+    if (dragCounter <= 0) {
+      hideOverlay();
+      dragCounter = 0;
+    }
+  });
+
   // Handle paste event for images
   document.addEventListener('paste', function (e) {
     if (e.clipboardData && e.clipboardData.items) {
@@ -192,6 +215,8 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
   });
   document.addEventListener('drop', function (e) {
+    hideOverlay();
+    dragCounter = 0;
     e.preventDefault();
     if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const file = e.dataTransfer.files[0];
