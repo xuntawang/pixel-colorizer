@@ -301,3 +301,29 @@ header .actions {
     justify-content: center;
     pointer-events: none;
 }
+
+#socials {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+#socials a {
+    margin-left: 10px;
+    color: #fdfdfd;
+    text-decoration: none;
+}
+#socials a:hover {
+    color: #d1aa09;
+}
+#socials img {
+    width: 32px;
+    height: 32px;
+    vertical-align: middle;
+    border: none;
+}
+#socials img:hover {
+    filter: brightness(0.8);
+}
+#socials img:active {
+    filter: brightness(0.6);
+}
