@@ -170,6 +170,37 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Handle paste event for images
+  document.addEventListener('paste', function (e) {
+    if (e.clipboardData && e.clipboardData.items) {
+      for (let i = 0; i < e.clipboardData.items.length; i++) {
+        const item = e.clipboardData.items[i];
+        if (item.type.indexOf('image') !== -1) {
+          const file = item.getAsFile();
+          if (file) {
+            drawCanva(file);
+            e.preventDefault();
+            break;
+          }
+        }
+      }
+    }
+  });
+
+  // Handle drag and drop for images
+  document.addEventListener('dragover', function (e) {
+    e.preventDefault();
+  });
+  document.addEventListener('drop', function (e) {
+    e.preventDefault();
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        drawCanva(file);
+      }
+    }
+  });
+
   // Handle settings input changes
   document.querySelectorAll('.inputbtn').forEach(input => {
     input.addEventListener('input', update);
