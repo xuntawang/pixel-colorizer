@@ -882,7 +882,7 @@
       </div>
 
       <div class="timer-main">
-        <button id="timerBtn" class="btn primary">我刚放下像素（开始30秒）</button>
+        <button id="timerBtn" class="btn primary">I just placed a pixel (start 30s)</button>
         <div class="time-left" aria-live="polite" aria-atomic="true">30s</div>
         <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
         <p class="hint">Tip: click after placing a pixel; we'll remind you when the 30s cooldown ends.</p>
@@ -992,7 +992,7 @@
       if(left > 0){ rafId = requestAnimationFrame(tick); }
       else{
         btn.disabled = false;
-        btn.textContent = '冷却完成，继续放下一个像素';
+        btn.textContent = 'Cooldown complete, place next pixel';
         if('vibrate' in navigator) navigator.vibrate(150);
         if(ding && ding.play) ding.play().catch(()=>{});
       }
@@ -1001,7 +1001,7 @@
     function start(){
       end = Date.now() + COOLDOWN_MS;
       btn.disabled = true;
-      btn.textContent = '冷却中…';
+      btn.textContent = 'Cooling down…';
       cancelAnimationFrame(rafId); bar.style.width = '0%';
       tick();
     }
@@ -1009,7 +1009,7 @@
     function doReset(){
       cancelAnimationFrame(rafId);
       btn.disabled = false;
-      btn.textContent = '我刚放下像素（开始30秒）';
+      btn.textContent = 'I just placed a pixel (start 30s)';
       label.textContent = fmt(COOLDOWN_MS);
       bar.style.width = '0%';
     }
