@@ -1,28 +1,771 @@
+<!-- Uses pixel-colorizer (MIT) -->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
+  <title>Wplace Pixel – Image → Wplace Palette (Free / Full) | Template & Timer</title>
+  <meta name="description" content="Convert images to Wplace-style pixel art with the official palette. Choose Free colors only or Full palette, then download a PNG template. 100% local, no bots.">
+  <link rel="canonical" href="https://wplacepixel.site/">
+  <meta property="og:title" content="Wplace Pixel – Image → Wplace Palette (Free / Full)">
+  <meta property="og:description" content="Upload → pixelate with the Wplace palette → download PNG template. Includes a 30s placement timer. 100% local.">
+  <meta property="og:url" content="https://wplacepixel.site/">
+  <meta property="og:image" content="/og.png">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+
   <link rel="stylesheet" href="style.css">
-  <title>Pixel Colorizer</title>
+  <style>
+    /* Base Styles */
+    :root { --max:1200px; }
+    body{ font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "PingFang SC", "Microsoft Yahei", sans-serif; line-height:1.6; }
+    .container{ max-width:var(--max); margin:0 auto; padding:0 16px; }
+    h1,h2,h3{ line-height:1.3; margin:16px 0 8px; }
+    p{ margin:8px 0 12px; }
+    button{ min-height:44px; padding:10px 14px; cursor:pointer; border-radius:8px; }
+    button:hover{ opacity:.9 } button:active{ transform:translateY(1px) }
+    canvas{ image-rendering: pixelated; }
+    @media(min-width:900px){
+      #toolSection{ display:grid; grid-template-columns: 1.2fr .8fr; gap:16px; align-items:start; }
+    }
+    @media(max-width:899px){
+      header nav{ flex-wrap:wrap; row-gap:6px; }
+    }
+    
+    /* Tool Shell - Cyberpunk Layout */
+    #toolShell{
+      display:grid;
+      grid-template-columns: 360px minmax(360px, 720px); /* 右侧预览最大 720 */
+      gap: 16px; 
+      align-items: start; 
+      max-width: 1200px; 
+      margin: 16px auto; 
+      padding: 0 16px;
+      justify-content: center; /* 关键：居中整个网格内容 */
+    }
+    
+    /* Controls Column - Neon Panel */
+    #controlsCol{ 
+      width: 360px; 
+      position: sticky; 
+      top: 12px;
+      background: rgba(0,255,136,0.05);
+      border: 2px solid rgba(0,255,136,0.3);
+      border-left: 4px solid #00ff88;
+      padding: 1.5rem;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 30px rgba(0,255,136,0.2);
+    }
+    
+    /* Preview Column */
+    #previewCol{ 
+      min-width: 0; /* 防止 grid 溢出 */ 
+    }
+    
+    /* Preview Scroller - Dark Tech Panel */
+    #previewScroller{
+      max-width: 720px;
+      margin: 0 auto;        /* 预览容器自身也居中 */
+      max-height: 80vh; /* 预览区最高不超过视窗高度的80% */
+      overflow: auto; 
+      border: 2px solid #00ffff; 
+      background: rgba(0,10,10,0.8); 
+      padding: 1rem;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 40px rgba(0,255,255,0.3);
+    }
+    
+    /* Canvas & Image Styling */
+    #previewScroller canvas, #previewScroller img{
+      width: 100%; 
+      height: auto;
+      max-width: 720px;  /* 预览最大宽 */
+      max-height: 720px; /* 预览最大高 */
+      image-rendering: pixelated;
+      display: block; 
+      margin: 0 auto;
+      border: 2px solid #00ffff;
+      box-shadow: 0 0 30px rgba(0,255,255,0.5);
+    }
+    
+    /* Selectors Container */
+    .selectors {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    /* Input Button Styling */
+    .inputbtn, #uploadimage {
+      background: rgba(0,255,136,0.1) !important;
+      border: 2px solid #00ff88 !important;
+      color: #00ff88 !important;
+      padding: 0.75rem 1rem !important;
+      font-family: 'Orbitron', monospace !important;
+      text-transform: uppercase !important;
+      letter-spacing: 1px !important;
+      font-weight: 600 !important;
+      transition: all 0.3s ease !important;
+      cursor: pointer !important;
+      display: block !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    
+    .inputbtn:hover, #uploadimage:hover {
+      background: rgba(0,255,136,0.2) !important;
+      box-shadow: 0 0 20px rgba(0,255,136,0.4) !important;
+      text-shadow: 0 0 10px #00ff88 !important;
+    }
+    
+    /* Range Input Styling */
+    input[type="range"] {
+      -webkit-appearance: none;
+      background: rgba(0,255,136,0.2);
+      height: 8px;
+      border-radius: 0;
+      outline: none;
+      margin: 0.5rem 0;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: #00ffff;
+      border: 2px solid #00ff88;
+      cursor: pointer;
+      box-shadow: 0 0 15px #00ffff;
+    }
+    
+    /* Block Value Display */
+    #blockvalue {
+      color: #00ffff !important;
+      font-weight: 700 !important;
+      text-shadow: 0 0 10px #00ffff !important;
+      margin-left: 0.5rem;
+    }
+    
+    /* Select Dropdown */
+    select {
+      background: rgba(0,255,136,0.1) !important;
+      border: 2px solid #00ff88 !important;
+      color: #00ff88 !important;
+      padding: 0.5rem !important;
+      font-family: 'Rajdhani', monospace !important;
+    }
+    
+    /* Checkbox Styling */
+    input[type="checkbox"] {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #00ff88;
+      background: rgba(0,255,136,0.1);
+      margin-left: 0.5rem;
+      cursor: pointer;
+      position: relative;
+    }
+    
+    input[type="checkbox"]:checked {
+      background: #00ff88;
+      box-shadow: 0 0 15px #00ff88;
+    }
+    
+    input[type="checkbox"]:checked::after {
+      content: '✓';
+      position: absolute;
+      top: -2px;
+      left: 3px;
+      color: #0a0a0a;
+      font-weight: bold;
+    }
+    
+    /* File Input Styling */
+    input[type="file"] {
+      background: rgba(0,255,136,0.1) !important;
+      border: 2px solid #00ff88 !important;
+      color: #00ff88 !important;
+      padding: 0.5rem !important;
+      font-family: 'Rajdhani', monospace !important;
+    }
+    
+    /* Text Input Styling */
+    input[type="input"] {
+      background: rgba(0,255,136,0.1) !important;
+      border: 2px solid #00ff88 !important;
+      color: #00ff88 !important;
+      padding: 0.5rem !important;
+      font-family: 'Rajdhani', monospace !important;
+    }
+    
+    /* 小屏回退为上下布局 */
+    @media (max-width: 900px){
+      #toolShell{ 
+        grid-template-columns: min(100%, 720px); 
+        justify-content: center; 
+        gap: 1rem;
+      }
+      #controlsCol, #previewCol{ 
+        width: 100%; 
+        position: static; 
+        justify-self: center; 
+      }
+      #controlsCol{
+        margin-bottom: 2rem;
+      }
+      #previewScroller{ 
+        max-height: none; 
+      }
+    }
+    
+    /* Updated Layout Styles - Override Previous */
+    /* 外层：按内容收缩 + 居中 */
+    #toolShell, #toolSection{
+      /* 有哪个作为两列包裹就写哪个；两个都写更保险 */
+      width: fit-content;                 /* 关键：不要占满整行 */
+      max-width: calc(100vw - 32px);      /* 防止越界 */
+      margin-inline: auto;                /* 水平居中 */
+    }
+
+    /* 两列网格：固定 360px 控件 + 右侧最大 720px 预览 */
+    #toolShell{
+      display: grid;
+      grid-template-columns: 360px minmax(360px, 720px);
+      gap: 16px;
+      justify-content: center;            /* 网格内容居中 */
+      align-items: start;
+    }
+
+    /* 左列固定宽，防止被拉伸；粘性定位可保留 */
+    #controlsCol{ width: 360px; flex: 0 0 360px; position: sticky; top: 12px; }
+
+    /* 右列预览区域自身也居中，且不超过 720px */
+    #previewCol{ min-width: 0; }
+    #previewScroller{
+      max-width: 720px;
+      margin: 0 auto;                     /* 自身在列中居中 */
+      max-height: 80vh;
+      overflow: auto;
+    }
+
+    /* 画布/图片：只限制显示尺寸，不影响导出分辨率 */
+    #previewScroller canvas, #previewScroller img{
+      width: 100% !important;
+      height: auto !important;
+      max-width: 720px !important;
+      max-height: 720px !important;
+      display: block;
+      margin: 0 auto;
+      image-rendering: pixelated;
+    }
+
+    /* 小屏回落为单列，仍然整体居中 */
+    @media (max-width: 900px){
+      #toolShell{
+        grid-template-columns: min(100%, 720px);
+        width: 100%;
+        justify-content: center;
+      }
+      #controlsCol{ width: 100%; position: static; }
+    }
+    
+    /* === Center Fix: 让外层不拽偏，内层按内容居中 === */
+
+    /* 1) 取消 #toolSection 的两列布局（保持普通块级容器） */
+    #toolSection { display: block !important; }
+
+    /* 2) 真正的两列只由 #toolShell 控制，并整体居中 */
+    #toolShell{
+      display: grid;
+      grid-template-columns: 360px minmax(360px, 720px); /* 左控件固定360；右预览最大720 */
+      gap: 16px;
+      align-items: start;
+      width: fit-content;              /* 关键：按内容收缩，不要占满整行 */
+      max-width: calc(100vw - 32px);   /* 防止越界 */
+      margin: 16px auto;               /* 水平居中 */
+      padding: 0 16px;
+      justify-content: center;         /* 网格内容在容器中居中 */
+    }
+
+    /* 3) 左列固定宽；右列预览自身也居中并限宽 */
+    #controlsCol{ width: 360px; position: sticky; top: 12px; }
+    #previewCol{ min-width: 0; }
+    #previewScroller{
+      max-width: 720px;
+      margin: 0 auto;                  /* 让预览面板在右列中也居中 */
+      max-height: 80vh;
+      overflow: auto;
+    }
+
+    /* 4) 只限制显示尺寸，不影响导出分辨率 */
+    #previewScroller canvas, #previewScroller img{
+      width: 100% !important;
+      height: auto !important;
+      max-width: 720px !important;
+      max-height: 720px !important;
+      display: block;
+      margin: 0 auto;
+      image-rendering: pixelated;
+    }
+
+    /* 5) 小屏回落为单列，整体仍居中 */
+    @media (max-width: 900px){
+      #toolShell{
+        grid-template-columns: min(100%, 720px);
+        width: 100%;
+        justify-content: center;
+      }
+      #controlsCol{ width: 100%; position: static; }
+    }
+  </style>
+  <style>
+    /* Cyberpunk Theme - Import Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+    
+    /* Page Layout - Dark Cyberpunk Base */
+    body { 
+      margin: 0; 
+      font-family: 'Rajdhani', 'Courier New', monospace;
+      line-height: 1.6;
+      color: #00ff88;
+      background: #0a0a0a;
+      background-image: 
+        radial-gradient(circle at 25% 25%, #1a0033 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, #001a33 0%, transparent 50%),
+        linear-gradient(45deg, transparent 40%, rgba(0,255,136,0.03) 50%, transparent 60%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    .container { 
+      max-width: 1200px; 
+      margin: 0 auto; 
+      padding: 0 16px; 
+    }
+    
+    /* Typography - Cyberpunk Style */
+    h1, h2, h3 { 
+      font-family: 'Orbitron', monospace;
+      margin: 1.5rem 0 1rem; 
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    h1 { 
+      color: #00ffff; 
+      text-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff, 0 0 60px #00ffff; 
+    }
+    h2 { 
+      color: #ff0080; 
+      text-shadow: 0 0 15px #ff0080, 0 0 30px #ff0080; 
+    }
+    h3 { 
+      color: #ffff00; 
+      text-shadow: 0 0 10px #ffff00; 
+    }
+    p, li { 
+      margin-bottom: 1rem; 
+      font-weight: 400;
+    }
+    
+    /* Header & Navigation - Neon Tech */
+    header { 
+      background: linear-gradient(135deg, rgba(10,10,10,0.95) 0%, rgba(26,0,51,0.95) 100%);
+      border-bottom: 2px solid #00ff88; 
+      padding: 1rem 0; 
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(0,255,136,0.3);
+    }
+    nav { 
+      display: flex; 
+      align-items: center; 
+      flex-wrap: wrap; 
+    }
+    nav a { 
+      margin-right: 2rem; 
+      text-decoration: none; 
+      color: #00ff88; 
+      font-weight: 600;
+      font-family: 'Orbitron', monospace;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 0.5rem 1rem;
+      border: 1px solid transparent;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    nav a:hover { 
+      color: #00ffff; 
+      border: 1px solid #00ffff;
+      box-shadow: 0 0 15px #00ffff, inset 0 0 15px rgba(0,255,255,0.1);
+      text-shadow: 0 0 10px #00ffff;
+    }
+    
+    /* Hero Section - Cyberpunk Gradient */
+    .hero { 
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a0033 25%, #001a33 50%, #330066 75%, #0a0a0a 100%);
+      color: #00ffff; 
+      padding: 6rem 0; 
+      text-align: center; 
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: 
+        linear-gradient(90deg, transparent 0%, rgba(0,255,255,0.1) 50%, transparent 100%),
+        linear-gradient(0deg, transparent 0%, rgba(255,0,128,0.1) 50%, transparent 100%);
+      animation: scan 4s linear infinite;
+    }
+    @keyframes scan {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    .hero h1 { 
+      font-size: 4rem; 
+      margin: 0 0 1rem; 
+      font-weight: 900;
+      background: linear-gradient(45deg, #00ffff, #ff0080, #ffff00, #00ff88);
+      background-size: 400% 400%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: rainbow 3s ease-in-out infinite;
+    }
+    @keyframes rainbow {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    .hero p { 
+      font-size: 1.4rem; 
+      opacity: 0.9; 
+      margin: 0; 
+      font-family: 'Rajdhani', monospace;
+      font-weight: 500;
+    }
+    
+    /* Sections - Dark Tech Panels */
+    section { 
+      padding: 4rem 0; 
+      border-bottom: 1px solid rgba(0,255,136,0.3); 
+      position: relative;
+    }
+    section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, rgba(0,255,136,0.02) 0%, transparent 50%, rgba(255,0,128,0.02) 100%);
+      pointer-events: none;
+    }
+    section h2 { 
+      font-size: 2.5rem; 
+      margin-bottom: 2rem; 
+      position: relative;
+      z-index: 1;
+    }
+    
+    /* Buttons - Neon Cyberpunk Style */
+    button, .btn { 
+      min-height: 44px; 
+      padding: 0.75rem 1.5rem; 
+      border: 2px solid #00ff88;
+      border-radius: 0;
+      background: rgba(0,255,136,0.1);
+      color: #00ff88;
+      cursor: pointer; 
+      font-size: 1rem; 
+      font-family: 'Orbitron', monospace;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    button:hover, .btn:hover { 
+      background: rgba(0,255,136,0.2);
+      box-shadow: 0 0 20px #00ff88, inset 0 0 20px rgba(0,255,136,0.1);
+      text-shadow: 0 0 10px #00ff88;
+      transform: translateY(-2px);
+    }
+    button::before, .btn::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%; right: 0; bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+    button:hover::before, .btn:hover::before {
+      left: 100%;
+    }
+    
+    /* Canvas - Pixelated with Glow */
+    canvas { 
+      image-rendering: pixelated; 
+      image-rendering: -moz-crisp-edges; 
+      image-rendering: crisp-edges;
+      border: 2px solid #00ffff;
+      box-shadow: 0 0 30px rgba(0,255,255,0.5);
+    }
+    
+    /* Responsive Grid for Guide */
+    .guide-grid { 
+      display: grid; 
+      grid-template-columns: 1fr 1fr; 
+      gap: 2rem; 
+      margin-top: 2rem; 
+    }
+    
+    /* FAQ Styling - Cyberpunk Cards */
+    .faq-item { 
+      margin-bottom: 2rem; 
+      padding: 1.5rem; 
+      background: rgba(0,255,136,0.05);
+      border: 1px solid rgba(0,255,136,0.3);
+      border-left: 4px solid #00ff88;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    .faq-item::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, rgba(0,255,255,0.05) 0%, transparent 50%, rgba(255,0,128,0.05) 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .faq-item:hover::before {
+      opacity: 1;
+    }
+    .faq-item:hover {
+      border-color: #00ffff;
+      box-shadow: 0 0 20px rgba(0,255,255,0.3);
+    }
+    .faq-item h3 { 
+      margin-top: 0; 
+      color: #ffff00;
+    }
+    
+    /* Rules List - Warning Style */
+    .rules-list { 
+      list-style: none; 
+      padding: 0; 
+    }
+    .rules-list li { 
+      padding: 1rem; 
+      margin-bottom: 1rem; 
+      background: rgba(255,0,128,0.1);
+      border: 1px solid rgba(255,0,128,0.3);
+      border-left: 4px solid #ff0080;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    .rules-list li:hover {
+      border-color: #ff0080;
+      box-shadow: 0 0 20px rgba(255,0,128,0.3);
+    }
+    
+    /* Footer - Dark Tech */
+    footer { 
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a0033 100%);
+      color: #00ff88; 
+      text-align: center; 
+      padding: 3rem 0; 
+      border-top: 2px solid #00ff88;
+      box-shadow: 0 -4px 20px rgba(0,255,136,0.3);
+    }
+    
+    /* Input Fields - Cyberpunk Style */
+    input[type="file"], input[type="range"], input[type="input"], select {
+      background: rgba(0,255,136,0.1);
+      border: 1px solid #00ff88;
+      color: #00ff88;
+      font-family: 'Rajdhani', monospace;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      background: #00ffff;
+      border: 2px solid #00ff88;
+      box-shadow: 0 0 10px #00ffff;
+    }
+    
+    /* Labels - Tech Style */
+    label {
+      color: #00ff88;
+      font-family: 'Orbitron', monospace;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 500;
+    }
+    
+    /* Timer Card Styles */
+    .timer-card{
+      max-width: 640px; margin: 12px auto 0; padding: 20px;
+      border-radius: 16px; border: 2px solid rgba(0,255,136,0.3); 
+      background: rgba(0,15,23,0.8);
+      box-shadow: 0 8px 24px rgba(0,255,136,0.15), 0 0 40px rgba(0,255,136,0.1); 
+      color: #e5e7eb;
+      backdrop-filter: blur(10px);
+    }
+    .timer-head{ 
+      display: flex; align-items: center; justify-content: space-between; 
+      margin-bottom: 10px; 
+    }
+    .timer-head span{ 
+      font-weight: 600; color: #00ff88; font-size: 14px; 
+      letter-spacing: .2px; text-transform: uppercase;
+      font-family: 'Orbitron', monospace;
+    }
+    .timer-main{ display: grid; gap: 14px; text-align: center; }
+    .btn{
+      padding: 12px 16px; min-height: 44px; border-radius: 10px; cursor: pointer;
+      border: 2px solid transparent; background: rgba(0,255,136,0.1); color: #00ff88;
+      transition: all .3s ease; font-weight: 600;
+      font-family: 'Orbitron', monospace; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .btn.primary{ 
+      background: rgba(0,255,136,0.2); border-color: #00ff88;
+      box-shadow: 0 0 20px rgba(0,255,136,0.3);
+    }
+    .btn.primary:disabled{ 
+      opacity: .6; cursor: not-allowed; 
+      background: rgba(255,0,128,0.2); border-color: #ff0080; color: #ff0080;
+      box-shadow: 0 0 20px rgba(255,0,128,0.3);
+    }
+    .btn.ghost{ 
+      background: transparent; border-color: rgba(0,255,136,0.3); color: #00ff88; 
+    }
+    .btn:hover:not(:disabled){ 
+      transform: translateY(-2px); 
+      box-shadow: 0 0 30px rgba(0,255,136,0.5);
+      text-shadow: 0 0 10px #00ff88;
+    }
+    .time-left{
+      font-variant-numeric: tabular-nums; letter-spacing: .5px;
+      font-size: clamp(40px, 6vw, 72px); line-height: 1; font-weight: 800; 
+      color: #00ffff;
+      text-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff;
+      font-family: 'Orbitron', monospace;
+    }
+    .progress{ 
+      height: 8px; background: rgba(31,41,55,0.8); border-radius: 999px; 
+      overflow: hidden; border: 1px solid rgba(0,255,136,0.3);
+    }
+    .progress span{ 
+      display: block; height: 100%;
+      width: 0%; background: linear-gradient(90deg, #00ff88, #00ffff);
+      transition: width .1s linear;
+      box-shadow: 0 0 10px rgba(0,255,255,0.5);
+    }
+    .hint{ 
+      margin: 4px 0 0; color: #00ff88; font-size: 12px; 
+      font-family: 'Rajdhani', monospace; opacity: 0.8;
+    }
+    
+    /* Mobile Responsive */
+    @media (max-width: 900px) {
+      .hero h1 { font-size: 2.5rem; }
+      .hero p { font-size: 1.1rem; }
+      .guide-grid { grid-template-columns: 1fr; }
+      nav a { display: block; margin: 0.5rem 0; }
+      nav { flex-direction: column; align-items: flex-start; }
+    }
+    @media (max-width: 420px){
+      .timer-card{ padding: 16px }
+      .btn{ padding: 10px 12px }
+    }
+  </style>
+  
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@graph":[
+      {"@type":"WebSite","name":"Wplace Pixel","url":"https://wplacepixel.site","inLanguage":"en"},
+      {"@type":"SoftwareApplication","name":"Wplace Pixel","applicationCategory":"MultimediaApplication","operatingSystem":"Web","url":"https://wplacepixel.site/","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@type":"HowTo","name":"Convert an image to a Wplace-style pixel template","description":"Use Wplace Pixel to convert an image to the official palette and download a PNG for manual placement on wplace.live.","step":[{"@type":"HowToStep","name":"Upload image","text":"Open Wplace Pixel and upload a JPG/PNG."},{"@type":"HowToStep","name":"Choose block size & palette","text":"Adjust Block size. Choose Free colors only or Full palette (all colors)."},{"@type":"HowToStep","name":"Download PNG","text":"Click Download PNG to get your template."},{"@type":"HowToStep","name":"Place pixels manually","text":"Open wplace.live and place pixels manually using the PNG as visual reference. No bots/automation."}],"totalTime":"PT1M","tool":[{"@type":"HowToTool","name":"Wplace Pixel"}],"image":"https://wplacepixel.site/og.png"}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Does this site upload images?","acceptedAnswer":{"@type":"Answer","text":"No. All processing happens locally in your browser (100% local)."}},
+{"@type":"Question","name":"Is Wplace Pixel free?","acceptedAnswer":{"@type":"Answer","text":"Yes. The website is free to use."}},
+{"@type":"Question","name":"What does "Free colors only" mean?","acceptedAnswer":{"@type":"Answer","text":"It limits conversion to the free color set available on wplace.live."}},
+{"@type":"Question","name":"Does this automate pixel placement?","acceptedAnswer":{"@type":"Answer","text":"No. This tool only converts images and provides a 30s timer. No bots/automation."}}
+]}
+</script>
 </head>
 
 <body>
-  <section class="working">
-    <div class="wrap">
-      <div id="socials">
-        <a href="https://github.com/Lenochxd/pixel-colorizer" target="_blank" rel="noopener noreferrer" title="View on GitHub">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" alt="GitHub" style="width:32px;height:32px;">
+  <!-- Header & Navigation -->
+  <header>
+    <div class="container">
+      <nav>
+        <a href="#tool">Tool</a>
+        <a href="#template">Template</a>
+        <a href="#palette">Palette</a>
+        <a href="#timer">Timer</a>
+        <a href="#guide">Guide</a>
+        <a href="#faq">FAQ</a>
+        <a href="#rules">Rules</a>
+        <a href="https://github.com/Lenochxd/pixel-colorizer" target="_blank" rel="noopener noreferrer" style="margin-left: auto;">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" alt="GitHub" style="width:20px;height:20px;vertical-align:middle;">
         </a>
-      </div>
-      <h2>Pixel It now</h2>
+      </nav>
+    </div>
+  </header>
 
-      <!-- max width -->
-      <div class="container maxwidth" id="tryit">
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+        <h1>Wplace Pixel</h1>
+        <span style="background: rgba(0,255,136,0.2); border: 1px solid #00ff88; color: #00ff88; padding: 0.25rem 0.75rem; font-size: 0.75rem; font-family: 'Orbitron', monospace; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; border-radius: 4px; box-shadow: 0 0 10px rgba(0,255,136,0.3);">100% Free</span>
+      </div>
+      <div class="hero-subtitle">
+        <p class="hero-hook">
+          Turn any image into <strong>Wplace pixel art</strong> with the official
+          <strong>Wplace palette</strong> (Free or Full).
+        </p>
+
+        <div class="hero-steps" aria-label="How it works">
+          <span class="step-pill">Upload</span>
+          <span class="step-sep">→</span>
+          <span class="step-pill">Choose Block size</span>
+          <span class="step-sep">→</span>
+          <span class="step-pill">Download PNG template</span>
+          <span class="step-sep">→</span>
+          <span class="step-pill">Place on <code>wplace.live</code></span>
+        </div>
+
+        <p class="hero-trust">100% local processing. <strong>No bots.</strong></p>
+      </div>
+      </div>
+  </section>
+
+  <!-- Tool Section -->
+  <section id="toolSection">
+    <div class="container">
+      <h2 id="tool">Tool — Image → Wplace Pixel Template</h2>
+      <div class="tool-lede">
+        <p>
+          Convert your image to <strong>Wplace-style pixel art</strong> in the browser.
+          Pick a <strong>Block size</strong>, then choose <strong>Free colors only</strong> or <strong>Full palette (all colors)</strong> to match the <strong>Wplace palette</strong>.
+          Click <strong>Download PNG</strong> to get a <strong>Wplace template PNG</strong> for manual placement on <code>wplace.live</code>.
+        </p>
+      </div>
+      
+      <!-- Two-column layout -->
+      <section id="toolShell">
+        <aside id="controlsCol">
         <div class="selectors">
           <!--upload image -->
           <label id="uploadimage" for="pixlInput">Upload Image<input type="file" class="inputbtn" id="pixlInput"></label>
@@ -42,20 +785,156 @@
           <label for="colorpalette" class="inputbtn">
             Color Palette
             <select name="palette" id="palette-select">
-              <option value="all">All colors unlocked</option>
+              <option value="all">Full palette (all colors)</option>
               <option value="free">Free colors only</option>
             </select>
           </label>
           <!-- download image -->
           <button id="downloadimage" class="btn small call">Download Image</button>
         </div>
+        </aside>
 
+        <main id="previewCol">
+          <div id="previewScroller">
+            <div id="pixelResult">
         <canvas id="pixelitcanvas"></canvas>
-
+            </div>
+          </div>
+        </main>
+      </section>
       </div>
   </section>
+  
   <img style="visibility: hidden;" id="sourceImage" alt="">
 
+  <!-- Template Section -->
+  <section id="template">
+    <div class="container">
+      <h2>Template — how to use your PNG on wplace.live</h2>
+      <div class="prose">
+        <p>
+          This site converts your image into <strong>Wplace-style pixel art</strong> and lets you <strong>download a PNG template</strong>.
+          Open <code>wplace.live</code>, zoom to your target area, and <strong>place pixels manually</strong> to match the PNG as a visual guide.
+          Unofficial helper; <strong>no bots or automation</strong>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Palette Section -->
+  <section id="palette">
+    <div class="container">
+      <h2>Palette — match the Wplace color set</h2>
+      <div class="prose">
+        <p>Two conversion modes (this website is free to use):</p>
+        <ul>
+          <li><strong>Free colors only</strong> — use only the <strong>free color set</strong> available on <code>wplace.live</code>.</li>
+          <li><strong>Full palette (all colors)</strong> — use the <strong>complete official palette</strong>.</li>
+        </ul>
+        <p>
+          Choose the mode that matches the <strong>color range</strong> you plan to use on <code>wplace.live</code>.
+          For simpler builds or large teams, <strong>Free colors only</strong> is usually safer.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tips Section -->
+  <section id="tips">
+    <div class="container">
+      <h2>Tips — better results on Wplace</h2>
+      <div class="prose">
+        <ul>
+          <li>Prefer <strong>higher contrast</strong> images for clearer shapes at larger <strong>Block sizes</strong>.</li>
+          <li>Crop/center your subject before uploading to reduce background pixels.</li>
+          <li>If your team uses only free colors, switch to <strong>Free colors only</strong> early to preview the actual look.</li>
+          <li>For very large logos, start with a <strong>coarse Block size</strong> to claim area, then refine.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Timer Section -->
+  <section id="timer" class="container">
+    <h2># Timer – Placement cooldown</h2>
+    <div class="timer-card" role="group" aria-labelledby="timerHeading">
+      <div class="timer-head">
+        <span id="timerHeading">Placement cooldown</span>
+        <button id="timerReset" class="btn ghost" aria-label="Reset timer">Reset</button>
+      </div>
+
+      <div class="timer-main">
+        <button id="timerBtn" class="btn primary">我刚放下像素（开始30秒）</button>
+        <div class="time-left" aria-live="polite" aria-atomic="true">30s</div>
+        <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+        <p class="hint">Tip: click after placing a pixel; we'll remind you when the 30s cooldown ends.</p>
+      </div>
+
+      <audio id="ding" preload="auto">
+        <source src="/ding.mp3" type="audio/mpeg">
+      </audio>
+    </div>
+  </section>
+
+  <!-- Guide Section -->
+  <section id="guide">
+    <div class="container">
+      <h2>Quick start — from image to Wplace template</h2>
+      <div class="prose">
+        <ol>
+          <li><strong>Upload</strong> your JPG/PNG.</li>
+          <li>Adjust <strong>Block size</strong> (<em>bigger blocks → fewer pixels</em>; <em>smaller blocks → more detail</em>).</li>
+          <li>Select <strong>Free colors only</strong> or <strong>Full palette (all colors)</strong> to match the <strong>Wplace palette</strong>.</li>
+          <li>Click <strong>Download PNG</strong> to get your <strong>Wplace template PNG</strong>.</li>
+          <li>Open <code>wplace.live</code> and <strong>place pixels manually</strong>, following the PNG as a reference.</li>
+          <li>Use the <strong>30-second timer</strong> below to stay in rhythm between placements.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq">
+    <div class="container">
+      <h2>FAQ</h2>
+      <div class="prose">
+        <details>
+          <summary>Does this site upload my image?</summary>
+          <p>No. Processing is <strong>100% local</strong> in your browser.</p>
+        </details>
+        <details>
+          <summary>Is Wplace Pixel paid?</summary>
+          <p>No. The website is <strong>free to use</strong>.</p>
+        </details>
+        <details>
+          <summary>What does "Free colors only" mean?</summary>
+          <p>Conversion is limited to the <strong>free color set</strong> available on <code>wplace.live</code>.</p>
+        </details>
+        <details>
+          <summary>Does this automate pixel placement?</summary>
+          <p>No. This tool only <strong>generates a PNG template</strong> and provides a <strong>30-second timer</strong>. <strong>No bots/automation.</strong></p>
+        </details>
+        <details>
+          <summary>Which formats and sizes are supported?</summary>
+          <p>JPG/PNG; we recommend files <strong>≤ 5MB</strong> for smoother preview.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- Rules Section -->
+  <section id="rules">
+    <div class="container">
+      <h2>Rules</h2>
+      <div class="prose">
+        <ul>
+          <li>Use this site for <strong>image conversion</strong> and <strong>cooldown timing</strong> only; <strong>do not</strong> automate actions.</li>
+          <li>Respect <code>wplace.live</code> rules and other creators' artworks.</li>
+          <li>Avoid inappropriate content or griefing.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
 
   <!-- Drag-and-drop overlay -->
   <div id="drag-overlay">
@@ -63,11 +942,306 @@
       Drop image here
     </div>
   </div>
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p class="note">Wplace Pixel Template — unofficial tool for wplace.live · Free to use · No bots/automation</p>
+    </div>
+  </footer>
+
   <script src="pixelit.js"></script>
   <script src="script.js"></script>
-</body>
+  
+  <!-- Timer Script -->
+  <script>
+  (function(){
+    const COOLDOWN_MS = 30000;
+    const btn = document.getElementById('timerBtn');
+    const reset = document.getElementById('timerReset');
+    const label = document.querySelector('.time-left');
+    const bar = document.getElementById('progressBar');
+    const ding = document.getElementById('ding');
 
+    let end = 0, rafId = null;
 
+    function fmt(ms){ return Math.ceil(ms/1000) + 's'; }
+
+    function tick(){
+      const left = Math.max(0, end - Date.now());
+      label.textContent = fmt(left);
+      const pct = 100 - (left / COOLDOWN_MS) * 100;
+      bar.style.width = pct + '%';
+      if(left > 0){ rafId = requestAnimationFrame(tick); }
+      else{
+        btn.disabled = false;
+        btn.textContent = '冷却完成，继续放下一个像素';
+        if('vibrate' in navigator) navigator.vibrate(150);
+        if(ding && ding.play) ding.play().catch(()=>{});
+      }
+    }
+
+    function start(){
+      end = Date.now() + COOLDOWN_MS;
+      btn.disabled = true;
+      btn.textContent = '冷却中…';
+      cancelAnimationFrame(rafId); bar.style.width = '0%';
+      tick();
+    }
+
+    function doReset(){
+      cancelAnimationFrame(rafId);
+      btn.disabled = false;
+      btn.textContent = '我刚放下像素（开始30秒）';
+      label.textContent = fmt(COOLDOWN_MS);
+      bar.style.width = '0%';
+    }
+
+    btn?.addEventListener('click', start);
+    reset?.addEventListener('click', doReset);
+    // 初始状态
+    doReset();
+  })();
+  </script>
+
+  <!-- 最小可行补丁：导航和Hero居中 -->
+  <style>
+    /* ===== NAV 居中：不受右上角图标影响 ===== */
+    header { position: relative; }
+    header .container{ max-width: var(--max); margin:0 auto; padding:12px 16px; }
+    header nav{
+      position: relative; left:50%; transform:translateX(-50%); /* 强制居中 */
+      display:flex; gap:28px; align-items:center; justify-content:center;
+      flex-wrap:nowrap;
+    }
+    @media (max-width:900px){
+      header nav{ left:0; transform:none; justify-content:center; flex-wrap:wrap; row-gap:6px; }
+    }
+    /* 可选：右上角 GitHub 等图标不影响 nav 居中 */
+    header .nav-actions{ position:absolute; right:16px; top:50%; transform:translateY(-50%); }
+
+    /* ===== HERO 居中：标题+徽章同一行、整体居中 ===== */
+    /* 如果没有 .hero/.hero-subtitle/.hero-badge 这些类，请仅添加 class，不改内容结构 */
+    .hero{ text-align:center; padding:56px 16px 32px; }
+    .hero h1{ margin:0; display:inline-block; }
+    .hero-badge{ display:inline-block; margin-left:12px; padding:6px 10px; border-radius:999px;
+      border:1px solid rgba(16,185,129,.6); background:rgba(16,185,129,.08); color:#10b981; font-weight:700; font-size:12px; }
+    .hero-subtitle{ margin:8px auto 0; max-width:820px; line-height:1.6; }
+
+    /* ===== 工具两列整体居中（保持之前逻辑） ===== */
+    #toolSection{ display:block !important; } /* 防止外层两列把内容拽到左边 */
+    #toolShell{
+      display:grid; grid-template-columns:360px minmax(360px,720px);
+      gap:16px; align-items:start;
+      width:fit-content; max-width:calc(100vw - 32px); margin:16px auto; padding:0 16px;
+      justify-content:center;
+    }
+    #controlsCol{ width:360px; position:sticky; top:12px; }
+    #previewCol{ min-width:0; }
+    #previewScroller{ max-width:720px; margin:0 auto; max-height:80vh; overflow:auto; }
+    #previewScroller canvas, #previewScroller img{
+      width:100% !important; height:auto !important; max-width:720px !important; max-height:720px !important;
+      display:block; margin:0 auto; image-rendering:pixelated;
+    }
+    @media (max-width:900px){
+      #toolShell{ grid-template-columns:min(100%,720px); width:100%; justify-content:center; }
+      #controlsCol{ width:100%; position:static; }
+    }
+
+    /* ===== NAV 优化版：用 gap 和 margin auto 实现更简洁的居中 ===== */
+    /* 让 nav 自身变成"按内容收缩的块"，再在 header 里居中 */
+    nav{
+      display: flex;
+      justify-content: center;   /* 水平居中 */
+      align-items: center;
+      gap: 2rem;                 /* 用 gap 取代每个 a 的 margin-right */
+      margin: 0 auto;            /* 居中 nav 这个块 */
+      white-space: nowrap;       /* 桌面端不换行，避免偏移 */
+    }
+
+    /* 去掉每个链接的右外边距，交给 gap 管 */
+    nav a{ margin: 0 !important; }
+
+    /* 小屏再允许换行且保持居中 */
+    @media (max-width: 900px){
+      nav{
+        white-space: normal;
+        flex-wrap: wrap;
+        row-gap: 6px;
+        justify-content: center;
+      }
+    }
+
+    /* ===== HERO 优化版：用 Flexbox 实现完美居中布局 ===== */
+    /* 让 hero 内层容器本身居中（无论你是否用了 .container） */
+    .hero .container,
+    .hero .hero-inner{
+      max-width: var(--max, 1200px);
+      margin: 0 auto;                 /* 居中容器 */
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;             /* 子元素（标题/徽章/段落）居中对齐 */
+      text-align: center;
+    }
+
+    /* 标题行（若有徽章）整体居中；没有这层也没关系 */
+    .hero-title-row{
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* 关键：让副标题这个"段落盒子"居中放置，并限制行宽 */
+    .hero p,
+    .hero .hero-subtitle{
+      max-width: 820px;                /* 行宽更舒服 */
+      margin: 10px auto 0;             /* 居中段落盒子（覆盖你原来的 margin:0） */
+      line-height: 1.6;
+      text-align: center;              /* 保底：段落里的文字也居中 */
+    }
+
+    /* Hero subtitle block */
+    .hero-subtitle{
+      max-width: 820px;
+      margin: 16px auto 0;
+      text-align: center;
+      text-wrap: balance;          /* 支持则更均匀换行；不支持也不影响 */
+    }
+
+    /* 第一段 Hook */
+    .hero-hook{
+      margin: 0 0 10px;
+      line-height: 1.6;
+    }
+
+    /* 中间"步骤一行"：大屏横排，小屏可换行 */
+    .hero-steps{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px 14px;
+      flex-wrap: wrap;
+      margin: 6px auto 10px;
+    }
+    .step-pill{
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border: 1px solid rgba(16,185,129,.6);
+      background: rgba(16,185,129,.08);
+      color: #10b981;
+      white-space: nowrap;
+    }
+    .step-sep{ opacity: .7; }
+
+    /* 最后一行信任声明 */
+    .hero-trust{
+      margin: 0;
+      line-height: 1.6;
+      opacity: .95;
+    }
+
+    /* Tool 副文案：限制行宽 + 居中 + 字号/行高提升 */
+    .tool-lede{
+      max-width: 820px;                /* 控制阅读行宽 */
+      margin: 12px auto 20px;          /* 居中 */
+      text-align: center;
+      color: #bffaf5;                  /* 略提亮，和夜色背景对比更好 */
+      text-wrap: balance;              /* 支持的浏览器更均匀换行，不支持也不影响 */
+    }
+    .tool-lede p{
+      margin: 0;
+      font-size: clamp(17px, 1.1vw + 12px, 20px);  /* 小屏≥17px，大屏≈19–20px */
+      line-height: 1.65;                            /* 行距更舒适 */
+    }
+    .tool-lede strong{ color:#00ffd0; font-weight:700; }
+    .tool-lede code  { color:#7ee8ff; }
+
+    @media (max-width: 480px){
+      .tool-lede{ max-width: 92vw; }   /* 超小屏稍放宽 */
+    }
+
+    /* ===== 统一排版变量（如已存在可复用，不要冲突） ===== */
+    :root{
+      --copy-fg: #bffaf5;
+      --copy-strong: #00ffd0;
+      --copy-code: #7ee8ff;
+    }
+
+    /* 统一正文容器：行宽、字号、行高、颜色 */
+    .prose{
+      max-inline-size: 48rem;                 /* ~768px */
+      margin: 12px auto 20px;
+      color: var(--copy-fg);
+      font-size: clamp(17px, 1.0vw + 12px, 20px);
+      line-height: 1.65;
+      text-wrap: balance;                      /* 支持则更均匀换行 */
+    }
+    .prose p{ margin: 0 0 .7em; }
+    .prose a{ color: var(--copy-code); text-decoration: none; }
+    .prose strong{ color: var(--copy-strong); font-weight: 700; }
+    .prose code{ color: var(--copy-code); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+    /* 列表与标记 */
+    .prose ul, .prose ol{ margin: .6em 0 .9em 1.2em; padding: 0; }
+    .prose li{ margin: .25em 0; }
+    .prose li::marker{ color: var(--copy-strong); }
+
+    /* FAQ 的 details/summary 统一样式 */
+    .prose details{ margin: .5em 0; }
+    .prose summary{
+      cursor: pointer;
+      color: var(--copy-strong);
+      font-weight: 700;
+      list-style: none;
+    }
+    .prose summary::-webkit-details-marker{ display: none; }
+    .prose summary::before{
+      content: "▸";
+      display: inline-block;
+      margin-right: .5em;
+      color: var(--copy-strong);
+      transform: translateY(-1px);
+    }
+    .prose details[open] summary::before{ content: "▾"; }
+
+    /* 超小屏：稍放宽行宽 */
+    @media (max-width: 480px){
+      .prose{ max-inline-size: 92vw; }
+    }
+
+    /* 保证 footer 占满行、内容可居中 */
+    footer{
+      width: 100%;
+      display: flex;                 /* 用 flex 居中更稳定 */
+      justify-content: center;
+      align-items: center;
+      border-top: 1px solid rgba(0,255,136,.25);
+      padding: 16px 0 28px;
+      text-align: center;            /* 备份策略 */
+      color: #8aa;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    footer a, footer code{ color:#7ee8ff; }
+
+    /* 让文案块自己也居中、不要被父级 fit-content 牵制 */
+    footer .note{
+      display: block;
+      margin-inline: auto;
+      padding-inline: 16px;          /* 两侧留点内边距避免贴边 */
+      max-inline-size: 72rem;        /* 上限，避免超长文本行 */
+    }
+
+    /* 可选：footer 声明里的关键词稍提亮 */
+    footer .note strong{ color:#00ffd0; }
+
+    /* 拉开 rules 与 footer 间距，避免视觉粘连（若已有更大间距可忽略） */
+    section#rules, .rules-section{ margin-bottom: 32px; }
+  </style>
 </body>
 
 </html>

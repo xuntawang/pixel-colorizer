@@ -1,3 +1,10 @@
+/*!
+ * Portions derived from pixel-colorizer — MIT License
+ * Copyright (c) 2020–2024 Lenochxd (github.com/Lenochxd/pixel-colorizer)
+ * Modifications for wplacepixel.site — © 2025 wplacepixel.site
+ * License: MIT. See LICENSE in this repository.
+ */
+
 function update() {
   console.log('Updating pixel art...');
   const config = {
