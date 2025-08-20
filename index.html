@@ -5,6 +5,24 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
+  <!-- Google tag (GA4) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-HGR5EHBJE5"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-HGR5EHBJE5', { send_page_view: true });
+  </script>
+
+  <!-- Microsoft Clarity -->
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "sxt9ex6nnc");
+  </script>
+
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
@@ -1000,6 +1018,118 @@
     reset?.addEventListener('click', doReset);
     // 初始状态
     doReset();
+  })();
+  </script>
+
+  <!-- GA4 Events Tracking -->
+  <script>
+  (function(){
+    // 防止重复绑定的标记
+    if (window.ga4EventsInitialized) return;
+    window.ga4EventsInitialized = true;
+
+    // 确保 gtag 函数存在
+    if (typeof gtag === 'undefined') {
+      console.warn('GA4: gtag function not available');
+      return;
+    }
+
+    // 1. 下载 PNG 按钮事件
+    const downloadBtn = document.getElementById('downloadimage');
+    if (downloadBtn) {
+      downloadBtn.addEventListener('click', function() {
+        gtag('event', 'download_png', { section: 'tool' });
+        console.log('GA4: download_png event sent');
+      });
+      console.log('GA4: Download button listener attached to #downloadimage');
+    } else {
+      console.warn('GA4: Download button #downloadimage not found');
+    }
+
+    // 2. 30s 计时器开始事件
+    const timerBtn = document.getElementById('timerBtn');
+    if (timerBtn) {
+      timerBtn.addEventListener('click', function() {
+        // 只在按钮未禁用时（即开始计时时）上报
+        if (!this.disabled) {
+          gtag('event', 'timer_start', { cool_down: 30 });
+          console.log('GA4: timer_start event sent');
+        }
+      });
+      console.log('GA4: Timer button listener attached to #timerBtn');
+    } else {
+      console.warn('GA4: Timer button #timerBtn not found');
+    }
+
+    // 3. 调色板模式切换事件
+    const paletteSelect = document.getElementById('palette-select');
+    if (paletteSelect) {
+      paletteSelect.addEventListener('change', function() {
+        const selectedValue = this.value;
+        let mode = '';
+        if (selectedValue === 'free') {
+          mode = 'Free colors only';
+        } else if (selectedValue === 'all') {
+          mode = 'Full palette (all colors)';
+        } else {
+          mode = selectedValue;
+        }
+        gtag('event', 'palette_mode', { mode: mode });
+        console.log('GA4: palette_mode event sent, mode:', mode);
+      });
+      console.log('GA4: Palette select listener attached to #palette-select');
+    } else {
+      console.warn('GA4: Palette select #palette-select not found');
+    }
+
+    // 4. Block size 调整事件（滑块释放时）
+    const blocksizeRange = document.getElementById('blocksize');
+    if (blocksizeRange) {
+      let isTracking = false;
+      
+      // 开始拖动时设置标记
+      blocksizeRange.addEventListener('mousedown', function() {
+        isTracking = true;
+      });
+      
+      // 触摸设备支持
+      blocksizeRange.addEventListener('touchstart', function() {
+        isTracking = true;
+      });
+      
+      // 释放时上报（鼠标）
+      blocksizeRange.addEventListener('mouseup', function() {
+        if (isTracking) {
+          const value = parseInt(this.value, 10);
+          gtag('event', 'blocksize_change', { value: value });
+          console.log('GA4: blocksize_change event sent, value:', value);
+          isTracking = false;
+        }
+      });
+      
+      // 释放时上报（触摸）
+      blocksizeRange.addEventListener('touchend', function() {
+        if (isTracking) {
+          const value = parseInt(this.value, 10);
+          gtag('event', 'blocksize_change', { value: value });
+          console.log('GA4: blocksize_change event sent, value:', value);
+          isTracking = false;
+        }
+      });
+      
+      // 键盘操作支持
+      blocksizeRange.addEventListener('keyup', function() {
+        const value = parseInt(this.value, 10);
+        gtag('event', 'blocksize_change', { value: value });
+        console.log('GA4: blocksize_change event sent via keyboard, value:', value);
+      });
+      
+      console.log('GA4: Block size range listeners attached to #blocksize');
+    } else {
+      console.warn('GA4: Block size range #blocksize not found');
+    }
+
+    console.log('GA4: All event listeners initialized successfully');
   })();
   </script>
 
