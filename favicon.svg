@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" shape-rendering="crispEdges">
+  <!-- 背景透明 -->
+  
+  <!-- 地球轮廓 - 圆形海洋 -->
+  <!-- 第1行 -->
+  <rect x="12" y="2" width="8" height="1" fill="#0ea5e9"/>
+  
+  <!-- 第2行 -->
+  <rect x="9" y="3" width="14" height="1" fill="#0ea5e9"/>
+  
+  <!-- 第3行 -->
+  <rect x="7" y="4" width="18" height="1" fill="#0ea5e9"/>
+  
+  <!-- 第4行 -->
+  <rect x="6" y="5" width="20" height="1" fill="#0ea5e9"/>
+  
+  <!-- 第5-6行 -->
+  <rect x="5" y="6" width="22" height="2" fill="#0ea5e9"/>
+  
+  <!-- 第7-8行 -->
+  <rect x="4" y="8" width="24" height="2" fill="#0ea5e9"/>
+  
+  <!-- 第9-24行 - 主体部分 -->
+  <rect x="3" y="10" width="26" height="14" fill="#0ea5e9"/>
+  
+  <!-- 第25-26行 -->
+  <rect x="4" y="24" width="24" height="2" fill="#0ea5e9"/>
+  
+  <!-- 第27-28行 -->
+  <rect x="5" y="26" width="22" height="2" fill="#0ea5e9"/>
+  
+  <!-- 第29行 -->
+  <rect x="6" y="28" width="20" height="1" fill="#0ea5e9"/>
+  
+  <!-- 第30行 -->
+  <rect x="7" y="29" width="18" height="1" fill="#0ea5e9"/>
+  
+  <!-- 第31行 -->
+  <rect x="9" y="30" width="14" height="1" fill="#0ea5e9"/>
+  
+  <!-- 第32行 -->
+  <rect x="12" y="31" width="8" height="1" fill="#0ea5e9"/>
+  
+  <!-- 陆地块 1 - 左上角 (类似北美) -->
+  <rect x="6" y="8" width="3" height="2" fill="#10b981"/>
+  <rect x="7" y="10" width="4" height="3" fill="#10b981"/>
+  <rect x="8" y="13" width="2" height="2" fill="#10b981"/>
+  <!-- 高光 -->
+  <rect x="7" y="9" width="1" height="1" fill="#22c55e"/>
+  <rect x="9" y="11" width="1" height="1" fill="#22c55e"/>
+  
+  <!-- 陆地块 2 - 右中部 (类似亚洲/非洲) -->
+  <rect x="18" y="12" width="5" height="4" fill="#10b981"/>
+  <rect x="20" y="16" width="4" height="3" fill="#10b981"/>
+  <rect x="22" y="19" width="3" height="2" fill="#10b981"/>
+  <!-- 高光 -->
+  <rect x="20" y="13" width="1" height="1" fill="#22c55e"/>
+  <rect x="22" y="17" width="1" height="1" fill="#22c55e"/>
+  
+  <!-- 陆地块 3 - 下方 (类似澳洲) -->
+  <rect x="12" y="22" width="4" height="2" fill="#10b981"/>
+  <rect x="13" y="24" width="3" height="2" fill="#10b981"/>
+  <!-- 高光 -->
+  <rect x="13" y="23" width="1" height="1" fill="#22c55e"/>
+  
+  <!-- 小岛点缀 -->
+  <rect x="11" y="18" width="1" height="1" fill="#10b981"/>
+  <rect x="25" y="15" width="1" height="1" fill="#10b981"/>
+</svg>

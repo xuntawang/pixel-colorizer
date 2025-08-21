@@ -28,7 +28,32 @@
 
   <title>Wplace Pixel – Image → Wplace Palette (Free / Full) | Template & Timer</title>
   <meta name="description" content="Convert images to Wplace-style pixel art with the official palette. Choose Free colors only or Full palette, then download a PNG template. 100% local, no bots.">
-  <link rel="canonical" href="https://wplacepixel.site/">
+  <link rel="canonical" href="https://wplacepixel.site/" />
+
+  <!-- Icons -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/icon.png" type="image/png" sizes="any">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Wplace Pixel Template",
+  "url": "https://wplacepixel.site/"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "url": "https://wplacepixel.site/",
+  "name": "Wplace Pixel Template",
+  "logo": "https://wplacepixel.site/icon.png"
+}
+</script>
+
   <meta property="og:title" content="Wplace Pixel – Image → Wplace Palette (Free / Full)">
   <meta property="og:description" content="Upload → pixelate with the Wplace palette → download PNG template. Includes a 30s placement timer. 100% local.">
   <meta property="og:url" content="https://wplacepixel.site/">
@@ -700,26 +725,7 @@
     }
   </style>
   
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@graph":[
-      {"@type":"WebSite","name":"Wplace Pixel","url":"https://wplacepixel.site","inLanguage":"en"},
-      {"@type":"SoftwareApplication","name":"Wplace Pixel","applicationCategory":"MultimediaApplication","operatingSystem":"Web","url":"https://wplacepixel.site/","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
-    ]
-  }
-  </script>
-  <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"HowTo","name":"Convert an image to a Wplace-style pixel template","description":"Use Wplace Pixel to convert an image to the official palette and download a PNG for manual placement on wplace.live.","step":[{"@type":"HowToStep","name":"Upload image","text":"Open Wplace Pixel and upload a JPG/PNG."},{"@type":"HowToStep","name":"Choose block size & palette","text":"Adjust Block size. Choose Free colors only or Full palette (all colors)."},{"@type":"HowToStep","name":"Download PNG","text":"Click Download PNG to get your template."},{"@type":"HowToStep","name":"Place pixels manually","text":"Open wplace.live and place pixels manually using the PNG as visual reference. No bots/automation."}],"totalTime":"PT1M","tool":[{"@type":"HowToTool","name":"Wplace Pixel"}],"image":"https://wplacepixel.site/og.png"}
-</script>
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
-{"@type":"Question","name":"Does this site upload images?","acceptedAnswer":{"@type":"Answer","text":"No. All processing happens locally in your browser (100% local)."}},
-{"@type":"Question","name":"Is Wplace Pixel free?","acceptedAnswer":{"@type":"Answer","text":"Yes. The website is free to use."}},
-{"@type":"Question","name":"What does "Free colors only" mean?","acceptedAnswer":{"@type":"Answer","text":"It limits conversion to the free color set available on wplace.live."}},
-{"@type":"Question","name":"Does this automate pixel placement?","acceptedAnswer":{"@type":"Answer","text":"No. This tool only converts images and provides a 30s timer. No bots/automation."}}
-]}
-</script>
+
 </head>
 
 <body>
@@ -888,9 +894,7 @@
         <p class="hint">Tip: click after placing a pixel; we'll remind you when the 30s cooldown ends.</p>
       </div>
 
-      <audio id="ding" preload="auto">
-        <source src="/ding.mp3" type="audio/mpeg">
-      </audio>
+
     </div>
   </section>
 
@@ -978,7 +982,7 @@
     const reset = document.getElementById('timerReset');
     const label = document.querySelector('.time-left');
     const bar = document.getElementById('progressBar');
-    const ding = document.getElementById('ding');
+
 
     let end = 0, rafId = null;
 
@@ -994,7 +998,6 @@
         btn.disabled = false;
         btn.textContent = 'Cooldown complete, place next pixel';
         if('vibrate' in navigator) navigator.vibrate(150);
-        if(ding && ding.play) ding.play().catch(()=>{});
       }
     }
 
